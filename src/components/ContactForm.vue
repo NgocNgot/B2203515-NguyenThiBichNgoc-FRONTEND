@@ -27,11 +27,11 @@
             </label>
         </div>
         <div class="form-group">
-            <button class="btn btn-primary">Lưu</button>
-            <button v-if="contactLocal._id" type="button" class="ml-2 btn btn-danger" @click="deleteContact">
+            <button class="btn btn-primary" type="submit">Lưu</button>
+            <button v-if="isEditing" type="button" class="ml-2 btn btn-danger" @click="deleteContact">
                 Xóa
             </button>
-            <button type="button" class="ml-2 btn btn-danger" @click="Cancel">
+            <button v-if="isEditing" type="button" class="ml-2 btn btn-danger" @click="Cancel">
                 Thoát
             </button>
         </div>
@@ -51,6 +51,7 @@ export default {
     emits: ["submit:contact", "delete:contact"],
     props: {
         contact: { type: Object, required: true },
+        isEditing: { type: Boolean, default: false }
     },
     data() {
         const contactFormSchema = yup.object().shape({
@@ -71,8 +72,11 @@ export default {
                     "Số điện thoại không hợp lệ."
                 ),
         });
+
+        const contactLocal = this.isEditing ? {...this.contact} : { name: "", email: "", address: "", phone: "", favorite: false };
+
         return {
-            contactLocal: this.contact,
+            contactLocal,
             contactFormSchema,
         };
     },
@@ -81,7 +85,7 @@ export default {
             this.$emit("submit:contact", this.contactLocal);
         },
         deleteContact() {
-            this.$emit("delete:contact", this.contactLocal.id); 
+            this.$emit("delete:contact", this.contactLocal._id); 
         },
         Cancel() {
             const reply = window.confirm('You have unsaved changes! Do you want to leave?')
